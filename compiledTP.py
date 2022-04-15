@@ -4,7 +4,7 @@ from PIL import Image
 import MC
 
 '''
-BUTTON CLASS 
+SIZE DOWN CHARACTER, MAKE CHARACTER CHANGE WITH SCREEN WIDTH/HEIGHT AND MAZE MODE (GRIDSIZE)
 '''
 
 # width = 1000
@@ -14,8 +14,8 @@ def appStarted(app):
     app.mode = "start" # "start"
     app.sideMargin = 80 #None
     app.topMargin = 20 #None
-    app.rows = 20
-    app.cols = 30
+    app.rows = None
+    app.cols = None
     app.cellSize = 28 #None
     app.mcChoice = None # input from user
     app.levelChoice = None
@@ -26,11 +26,12 @@ def appStarted(app):
     app.mcStartScreen1 = MC.MC(0, 0, app.mainSpriteStart, 1)
     app.mcStartScreen2 = MC.MC(0, 0, app.mainSpriteStart, 2)
     app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 10) # scale MC based on window size
-    app.maze = [["?"] * app.cols for i in range(app.rows)]
+    app.maze = None # [["?"] * app.cols for i in range(app.rows)]
     app.mazeWalls = []
     app.mcStartX = 0
     app.mcStartY = 0
     app.mc = None # MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    app.friend = None
     #app.mcStartScreen = MC.MC(0, 0, app.mainSpriteStart, app.mcChoice)
     app.timerDelay = 20
     ground = app.loadImage("ground.jpeg")
@@ -40,6 +41,9 @@ def appStarted(app):
     torch = app.loadImage("torch.png")
     app.torch = app.scaleImage(torch, app.cellSize/50)
     app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
+    app.friendX = None
+    app.friendY = None
+    app.friendChoice = None
     # app.ground.place
 
 
@@ -74,13 +78,126 @@ def start_mousePressed(app, event):
     if event.x > char2Bounds[0] and event.x < char2Bounds[2] and event.y > char2Bounds[1] \
         and event.y < char2Bounds[3]:
         app.mcChoice = 2
+
+    # click on torch
     torchBounds = (5 * app.width / 6, 7 * app.height / 10)
     if event.x > torchBounds[0] - app.width/20 and event.x < torchBounds[0] + app.width/20 \
         and event.y > torchBounds[1] - app.height/5.5 and event.y < torchBounds[1] + app.height/5.5:
         if app.mcChoice != None and app.levelChoice != None: 
+            pickCharacterAndLevel(app)
+            pickOtherCharacter(app)
             app.mode = "gameplay"
+
+    # choosing a level
+    levelx0, levelx1 = 18*app.width/25, 24*app.width/25
+    if event.x > levelx0 and event.x < levelx1 and event.y > 2*app.height/18 \
+        and event.y < 4*app.height/18:
+        app.levelChoice = "easy"
+    if event.x > levelx0 and event.x < levelx1 and event.y > 4*app.height/18 \
+        and event.y < 6*app.height/18:
+        app.levelChoice = "medium"
+    if event.x > levelx0 and event.x < levelx1 and event.y > 6*app.height/18 \
+        and event.y < 8*app.height/18:
+        app.levelChoice = "hard"
+
+def reset(app):
+    app.mode = "start" # "start"
+    app.sideMargin = None #None
+    app.topMargin = None #None
+    app.rows = None
+    app.cols = None
+    app.cellSize = None #None
+    app.friendX = None
+    app.friendY = None
+    # app.mcChoice = None # input from user
+    # app.levelChoice = None
+
+def pickOtherCharacter(app):
+    randCharacter = random.randint(0,2)
+    while randCharacter == app.mcChoice: 
+        # until it's not the same as the main character
+        randCharacter = random.randint(0,2)
+    x1,x2,y1,y2 = cellBounds(app, app.rows-3, app.cols-4)
+    app.friendX = (x1+x2)/2
+    app.friendY = (y1+y2)/2
+    app.friendChoice = randCharacter
+    app.friend = MC.MC(app.friendX, app.friendY, app.mainSprite, randCharacter)
+
+def pickCharacterAndLevel(app):
+    print(f'levelChoice: {app.levelChoice}, mcChoice: {app.mcChoice}')
+    if app.levelChoice == "easy":
+        reset(app) # resets everything, can be more precise later
+        app.rows = 20
+        app.cols = 30
+        app.maze = [["?"] * app.cols for i in range(app.rows)]
+        app.cellSize = getCellSize(app)
+        app.sideMargin, app.topMargin = getMargin(app)
+        makeMaze(app, 0) # walls removed
+        app.mcStartX, app.mcStartY = determineStartPosition(app)
+        makeEntrance(app)
+        app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    if app.levelChoice == "medium":
+        reset(app) # resets everything, can be more precise later
+        app.rows = 25
+        app.cols = 35
+        app.maze = [["?"] * app.cols for i in range(app.rows)]
+        app.cellSize = getCellSize(app)
+        app.sideMargin, app.topMargin = getMargin(app)
+        makeMaze(app, 0) # walls removed
+        app.mcStartX, app.mcStartY = determineStartPosition(app)
+        makeEntrance(app)
+        print(f'mcChoice: {app.mcChoice}')
+        app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    if app.levelChoice == "hard":
+        reset(app) # resets everything, can be more precise later
+        app.rows = 30
+        app.cols = 40
+        app.maze = [["?"] * app.cols for i in range(app.rows)]
+        app.cellSize = getCellSize(app)
+        app.sideMargin, app.topMargin = getMargin(app)
+        makeMaze(app, 0) # walls removed
+        app.mcStartX, app.mcStartY = determineStartPosition(app)
+        makeEntrance(app)
+        app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
         
-    
+
+    #     appStarted(app)
+    #     app.rows = 20
+    #     app.cols = 30
+    #     app.cellSize = getCellSize(app)
+    #     app.sideMargin, app.topMargin = getMargin(app)
+    #     makeMaze(app, 0)
+    #     app.mcStartX, app.mcStartY = determineStartPosition(app)
+    #     makeEntrance(app)
+    #     app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    #     #getMCPosition(app)
+    #     #print("maze made!")
+
+
+
+        makeMaze(app, 0) # numRemoved
+
+
+def drawLevels(app, canvas):
+    canvas.create_text(21*app.width/25, 3*app.height/18, fill = "#ffce00", \
+    text = "EASY", font = f"Helvetica {int(app.width/25)} bold")
+    canvas.create_text(21*app.width/25, 5*app.height/18, fill = "#ff9a00", \
+    text = "MEDIUM", font = f"Helvetica {int(app.width/25)} bold")
+    canvas.create_text(21*app.width/25, 7*app.height/18, fill = "#ff0000", \
+    text = "HARD", font = f"Helvetica {int(app.width/25)} bold")
+        
+def drawLevelChoice(app, canvas):
+    levelx0, levelx1 = 18*app.width/25, 24*app.width/25
+    if app.levelChoice == "easy":
+        canvas.create_rectangle(levelx0, 2*app.height/18,levelx1, \
+            4*app.height/18, fill = "#404040", outline = "#707070")
+    if app.levelChoice == "medium":
+        canvas.create_rectangle(levelx0, 4*app.height/18,levelx1, \
+            6*app.height/18, fill = "#404040", outline = "#707070")
+    if app.levelChoice == "hard":
+        canvas.create_rectangle(levelx0, 6*app.height/18,levelx1, \
+            8*app.height/18, fill = "#404040", outline = "#707070")
+
 # def start_timerFired(app):
 #     if app.mcChoice != None and app.levelChoice != None: 
 #         app.mode = "gameplay"
@@ -93,17 +210,20 @@ def start_redrawAll(app, canvas):
     drawGround(app, canvas)
     if app.mcChoice != None: 
         drawCharacterChoice(app, canvas, app.mcChoice)
+    if app.levelChoice != None: 
+        drawLevelChoice(app, canvas)
     # if app.levelChoice != None: 
     #     drawLevelChoice(app, canvas, app.levelChoice)
     drawCharacters(app, canvas)
-    torchBounds = (5 * app.width / 6, 7 * app.height / 10)
-    canvas.create_rectangle(torchBounds[0] - app.width/20, torchBounds[1] - app.height/5.5, \
-        torchBounds[0] + app.width/20, torchBounds[1] + app.height/5.5, fill = "purple")
+    # torchBounds = (5 * app.width / 6, 7 * app.height / 10)
+    # canvas.create_rectangle(torchBounds[0] - app.width/20, torchBounds[1] - app.height/5.5, \
+    #     torchBounds[0] + app.width/20, torchBounds[1] + app.height/5.5, fill = "purple")
+    drawLevels(app, canvas)
     drawTorch(app, canvas)
     #drawLevels(app, canvas)
     # drawTitle(app, canvas)
     #canvas.create_rectangle(0,0,app.width, app.height, fill = "black")
-    
+
 
 def drawTorch(app, canvas):
     canvas.create_image(5 * app.width / 6, 7 * app.height / 10, image = ImageTk.PhotoImage(app.torch))
@@ -117,7 +237,8 @@ def drawCharacterChoice(app, canvas, choice):
     sideBorder = app.width//21
     topBorder = app.height//40
     canvas.create_rectangle(bounds[0] - sideBorder, bounds[1] - topBorder, \
-        bounds[2] + sideBorder, bounds[3] + topBorder, fill = "#404040", outline = "#707070")
+        bounds[2] + sideBorder, bounds[3] + topBorder, fill = "#404040", \
+        outline = "#707070")
 
 
 def startScreenCharactersBounds(app, i):
@@ -192,13 +313,27 @@ def gameplay_keyPressed(app, event):
 def gameplay_redrawAll(app, canvas):
     drawMaze(app, canvas)
     main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
+    friend = app.friend.mainSprite["d0"][1]
     #print(f'x: {app.mc.mainX}, y: {app.mc.mainY}')
     canvas.create_image(app.mc.x, app.mc.y - 15, image=ImageTk.PhotoImage(main))
+    canvas.create_image(app.friend.x, app.friend.y - 15, image=ImageTk.PhotoImage(friend))
     #canvas.create_rectangle(0,0,width,height,fill = "purple")
     # drawMaze(app)
 
 def gameplay_timerFired(app):
-    pass
+    # if the characters run into each other
+    diffX = app.mc.x - app.friend.x
+    diffY = app.mc.y - app.friend.y
+    if (diffX < 10 and diffX > -10) and (diffY < 10 and diffY > -10):
+        friendFollow(app)
+        app.friend.x = app.mc.x - 9
+        app.friend.y = app.mc.y
+
+        #app.friend = MC.MC(app.friendX, app.friendY, app.mainSprite, randCharacter)
+
+def friendFollow(app):
+    app.mc 
+    
 
 #####################
 # won game mode
@@ -239,7 +374,7 @@ def getMargin(app):
     #print(f'mazeLength = {mazeLength}, mazeHeight = {mazeHeight}, sizeMargin = {sideMargin}, topMargin = {topMargin}')
     return sideMargin, topMargin
 
-def cellBounds(app, canvas, row, col): # modified from course notes
+def cellBounds(app, row, col): # modified from course notes
     x1 = app.sideMargin + col * app.cellSize
     x2 = x1 + app.cellSize
     y1 = app.topMargin + row * app.cellSize
@@ -247,7 +382,7 @@ def cellBounds(app, canvas, row, col): # modified from course notes
     return (x1, x2, y1, y2)
 
 def drawCell(app, canvas, row, col, color): 
-    x1,x2,y1,y2 = cellBounds(app, canvas, row, col)
+    x1,x2,y1,y2 = cellBounds(app, row, col)
     canvas.create_rectangle(x1, y1, x2, y2, fill = color, width = 0)
 
 # def drawCorrectWall(app, canvas, row, col, color):
@@ -310,9 +445,9 @@ def makeMaze(app, numRemoved):
     removeWalls(app, numRemoved)
 
 def makeChamber(app):
-    for row in range(-2,-5, -1):
-        for col in range(-2,-6, -1):
-            print(app.maze[row][col])
+    for row in range(-2,-6, -1):
+        for col in range(-2,-7, -1):
+            #print(app.maze[row][col])
             app.maze[row][col] = "path"
     app.maze[-3][-1] = "path"
 
@@ -386,7 +521,6 @@ def addSurroundingWalls(app, startRow, startCol):
         # print(f'[startRow + dRow, startCol + dCol]: {[startRow + dRow, startCol + dCol]}')
         app.mazeWalls.append([startRow + dRow, startCol + dCol])
         app.maze[startRow + dRow][startCol + dCol] = "wall"
-        #print(app.maze)
 
 def moveCharacter(app, dX, dY):
     app.mc.x += dX
@@ -434,7 +568,7 @@ def drawGround(app, canvas):
     for row in range(0,5):
         for col in range(0,4):
                 canvas.create_image(row*app.width//4, col*app.height//4, image=app.ground)
-                #canvas.create_line(0, 0, row * app.cellSize, col * app.cellSize, fill = "red")
+
 
 def drawMaze(app, canvas):
     drawGround(app, canvas)
@@ -446,11 +580,6 @@ def drawMaze(app, canvas):
             # elif app.maze[row][col] == "path": 
             #     drawCell(app, canvas, row, col, "black")
     drawPassages(app, canvas)
-
-# def drawStartScreen(app, canvas):
-#     drawGround(app, canvas)
-#     canvas.create_rectangle(0,0,app.width, app.height, fill = "black")
-#     canvas.create_text(app.width/2, app.height/2,text = 'press "S" to start', fill = "white")
 
 
 runApp(width=1000, height=600)
