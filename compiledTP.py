@@ -11,16 +11,16 @@ SIZE DOWN CHARACTER, MAKE CHARACTER CHANGE WITH SCREEN WIDTH/HEIGHT AND MAZE MOD
 # height = 600
 
 def appStarted(app):
-    app.mode = "start" # "start"
+    app.mode = "start" 
     app.sideMargin = 80 #None
     app.topMargin = 20 #None
     app.rows = None
     app.cols = None
-    app.cellSize = 28 #None
+    app.cellSize = 28
     app.mcChoice = None # input from user
     app.levelChoice = None
     app.mainSprite = app.loadImage("chibi-layered.png")
-    app.mainSpriteStart = app.scaleImage(app.mainSprite, app.cellSize/2)
+    app.mainSpriteStart = app.scaleImage(app.mainSprite, app.width/75)
     app.mcStartScreen0 = MC.MC(0, 0, app.mainSpriteStart, 0)
 
     app.mcStartScreen1 = MC.MC(0, 0, app.mainSpriteStart, 1)
@@ -41,9 +41,13 @@ def appStarted(app):
     torch = app.loadImage("torch.png")
     app.torch = app.scaleImage(torch, app.cellSize/50)
     app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
+    app.gameOverText = app.loadImage("gameover.png")
+    #app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
+    app.youWonText = app.scaleImage(app.loadImage("youwin1.png"),0.7)
     app.friendX = None
     app.friendY = None
     app.friendChoice = None
+    app.foundFriend = False
     # app.ground.place
 
 
@@ -109,6 +113,14 @@ def reset(app):
     app.cellSize = None #None
     app.friendX = None
     app.friendY = None
+    app.mcChoice = None
+    app.levelChoice = None
+    app.friendX = None
+    app.friendY = None
+    app.friendChoice = 1 # None
+    app.foundFriend = False
+    app.friend = None
+
     # app.mcChoice = None # input from user
     # app.levelChoice = None
 
@@ -126,7 +138,7 @@ def pickOtherCharacter(app):
 def pickCharacterAndLevel(app):
     print(f'levelChoice: {app.levelChoice}, mcChoice: {app.mcChoice}')
     if app.levelChoice == "easy":
-        reset(app) # resets everything, can be more precise later
+        #reset(app) # resets everything, can be more precise later
         app.rows = 20
         app.cols = 30
         app.maze = [["?"] * app.cols for i in range(app.rows)]
@@ -137,7 +149,7 @@ def pickCharacterAndLevel(app):
         makeEntrance(app)
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
     if app.levelChoice == "medium":
-        reset(app) # resets everything, can be more precise later
+        #reset(app) # resets everything, can be more precise later
         app.rows = 25
         app.cols = 35
         app.maze = [["?"] * app.cols for i in range(app.rows)]
@@ -149,7 +161,7 @@ def pickCharacterAndLevel(app):
         print(f'mcChoice: {app.mcChoice}')
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
     if app.levelChoice == "hard":
-        reset(app) # resets everything, can be more precise later
+        #reset(app) # resets everything, can be more precise later
         app.rows = 30
         app.cols = 40
         app.maze = [["?"] * app.cols for i in range(app.rows)]
@@ -159,21 +171,6 @@ def pickCharacterAndLevel(app):
         app.mcStartX, app.mcStartY = determineStartPosition(app)
         makeEntrance(app)
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
-        
-
-    #     appStarted(app)
-    #     app.rows = 20
-    #     app.cols = 30
-    #     app.cellSize = getCellSize(app)
-    #     app.sideMargin, app.topMargin = getMargin(app)
-    #     makeMaze(app, 0)
-    #     app.mcStartX, app.mcStartY = determineStartPosition(app)
-    #     makeEntrance(app)
-    #     app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
-    #     #getMCPosition(app)
-    #     #print("maze made!")
-
-
 
         makeMaze(app, 0) # numRemoved
 
@@ -200,7 +197,7 @@ def drawLevelChoice(app, canvas):
 
 # def start_timerFired(app):
 #     if app.mcChoice != None and app.levelChoice != None: 
-#         app.mode = "gameplay"
+#      app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)   app.mode = "gameplay"
 
 
 def start_keyPressed(app, event):
@@ -240,7 +237,6 @@ def drawCharacterChoice(app, canvas, choice):
         bounds[2] + sideBorder, bounds[3] + topBorder, fill = "#404040", \
         outline = "#707070")
 
-
 def startScreenCharactersBounds(app, i):
     startY = int(app.height//2)
     endY = int(7*app.height//8)
@@ -257,28 +253,6 @@ def drawCharacters(app, canvas):
         #print(f'character: {character}')
         canvas.create_image(midX, midY, image = ImageTk.PhotoImage(character.mainSprite["d0"][0]))
         i += 1
-    
-    # i = 0
-    # character = app.mcStartScreen0.mainSprite["d0"][0]
-    # canvas.create_image(midX, midY, image = ImageTk.PhotoImage(character))
-    # i = 1
-    # character = app.mcStartScreen1.mainSprite["d0"][0]
-    # canvas.create_image(midX, midY, image = ImageTk.PhotoImage(character))
-    # i = 2
-    # character = app.mcStartScreen2.mainSprite["d0"][0]
-    # canvas.create_image(midX, midY, image = ImageTk.PhotoImage(character))
-
-    '''
-    #app.mcStartScreen1 = MC.MC(0, 0, app.mainSpriteStart, i)
-    #canvas.create_image(startX, startY, endX, endY, image=ImageTk.PhotoImage(character))
-    canvas.create_rectangle(startX, startY, endX, endY, fill = "red")
-
-    main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
-    #print(f'x: {app.mc.mainX}, y: {app.mc.mainY}')
-    canvas.create_image(app.mc.x, app.mc.y - 15, image=ImageTk.PhotoImage(main))
-    # character = app.mc.mainSprite["d0"][0]
-    # canvas.create_image(startX, startY, endX, endY, image=ImageTk.PhotoImage(character))
-    '''
 
 #####################
 # gameplay mode
@@ -313,7 +287,10 @@ def gameplay_keyPressed(app, event):
 def gameplay_redrawAll(app, canvas):
     drawMaze(app, canvas)
     main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
-    friend = app.friend.mainSprite["d0"][1]
+    if app.foundFriend == False: 
+        friend = app.friend.mainSprite["d0"][1]
+    else: 
+        friend = app.friend.mainSprite[app.mc.direction][app.mc.spriteCounter]
     #print(f'x: {app.mc.mainX}, y: {app.mc.mainY}')
     canvas.create_image(app.mc.x, app.mc.y - 15, image=ImageTk.PhotoImage(main))
     canvas.create_image(app.friend.x, app.friend.y - 15, image=ImageTk.PhotoImage(friend))
@@ -325,27 +302,120 @@ def gameplay_timerFired(app):
     diffX = app.mc.x - app.friend.x
     diffY = app.mc.y - app.friend.y
     if (diffX < 10 and diffX > -10) and (diffY < 10 and diffY > -10):
-        friendFollow(app)
-        app.friend.x = app.mc.x - 9
+        #friendFollow(app)
+        app.foundFriend = True
+    if app.foundFriend == True: 
+        app.friend.x = app.mc.x - 35
         app.friend.y = app.mc.y
-
-        #app.friend = MC.MC(app.friendX, app.friendY, app.mainSprite, randCharacter)
-
-def friendFollow(app):
-    app.mc 
     
 
 #####################
 # won game mode
 #####################
 
+def won_mousePressed(app, event):
+    #print(f'clicked at: {event.x,event.y}')
+    x = 17 * app.width// 26
+    dWidth = app.width//8
+    dHeight = app.height//10
+    y = 3 * app.height//4
+    if event.x > x - dWidth and event.x < x + dWidth and \
+        event.y > y - dHeight and event.y < y + dHeight: 
+        print("startMode")
+        app.mode = "start"
+        reset(app)
 
+def won_keyPressed(app, event):
+    pass
+
+def won_timerFired(app):
+    pass
+
+def won_redrawAll(app, canvas):
+    drawGround(app, canvas)
+    messageBoxHeight = app.height // 5.8
+    messageBoxWidth = app.width // 2.6
+    youWon = app.youWonText
+    canvas.create_rectangle(app.width//2 - messageBoxWidth, app.height//2 - \
+        messageBoxHeight - app.height//6, app.width//2 + messageBoxWidth, app.height//2 + \
+        messageBoxHeight - app.height//11, fill = "black")
+    canvas.create_rectangle(app.width//2 - messageBoxWidth + app.width//20, app.height//2 - \
+        messageBoxHeight - app.height//8, app.width//2 + messageBoxWidth - app.width//20, app.height//2 + \
+        messageBoxHeight - app.height//7.6, fill = "#625D52")
+    canvas.create_image(app.width//2, app.height*3//8, image=ImageTk.PhotoImage(youWon))
+
+    drawEndCharacters(app, canvas)
+    # draw torch
+    endTorch = app.scaleImage(app.torchStartScreen, 0.18)
+    canvas.create_image(5* app.width // 11, 4 * app.height//5 - 5, image=ImageTk.PhotoImage(endTorch))
+    
+    # draw character
+    #character = app.mc.mainSprite["d0"][0]
+    #canvas.create_image(app.width // 2, 2 * app.height//3, image=ImageTk.PhotoImage(character))
+
+    drawWonBackToHome(app, canvas)
+
+def drawEndCharacters(app, canvas):
+        main = MC.MC(0, 0, app.mainSprite, app.mcChoice)
+        friend = MC.MC(0, 0, app.mainSprite, app.friendChoice)
+        main = app.scaleImage(main.mainSprite["d0"][0], 3.5)
+        friend = app.scaleImage(friend.mainSprite["d0"][0], 3.5)
+        canvas.create_image(5* app.width//13, 3*app.height//4, image = ImageTk.PhotoImage(main))
+        canvas.create_image(1*app.width//4, 3*app.height//4, image = ImageTk.PhotoImage(friend))
+
+def drawWonBackToHome(app, canvas):
+    x = 17 * app.width// 26
+    y = 3 * app.height//4
+    canvas.create_text(x, y, text = "RETURN \n  HOME", font = f"Helvetica \
+        {int(app.width/22)} bold", fill = "#ffcd01")
 
 #####################
-# lost game mode
+# game over mode
 #####################
+def gameOver_mousePressed(app, event):
+    pass
 
+def gameOver_keyPressed(app, event):
+    pass
 
+def gameOver_timerFired(app):
+    pass
+
+def gameOver_redrawAll(app, canvas):
+    drawGround(app, canvas)
+    messageBoxHeight = app.height // 5.8
+    messageBoxWidth = app.width // 2.6
+    gameOver = app.gameOverText
+    canvas.create_rectangle(app.width//2 - messageBoxWidth, app.height//2 - \
+        messageBoxHeight - app.height//6, app.width//2 + messageBoxWidth, app.height//2 + \
+        messageBoxHeight - app.height//11, fill = "black")
+    canvas.create_rectangle(app.width//2 - messageBoxWidth + app.width//50, app.height//2 - \
+        messageBoxHeight - app.height//7.65, app.width//2 + messageBoxWidth - app.width//50, app.height//2 + \
+        messageBoxHeight - app.height//8, fill = "#625D52")
+    canvas.create_image(app.width//2, app.height*3//8, image=ImageTk.PhotoImage(gameOver))
+
+    # draw torch
+    endTorch = app.scaleImage(app.torchStartScreen, 0.3)
+    canvas.create_image(app.width // 2, 4 * app.height//5 - 5, image=ImageTk.PhotoImage(endTorch))
+    
+    # draw character
+    #character = app.mc.mainSprite["d0"][0]
+    #canvas.create_image(app.width // 2, 2 * app.height//3, image=ImageTk.PhotoImage(character))
+
+    drawBackToHome(app, canvas)
+    drawReplay(app, canvas)
+
+def drawBackToHome(app, canvas):
+    x = 2 * app.width// 7
+    y = 3*app.height//4
+    canvas.create_text(x, y, text = "RETURN \n  HOME", font = f"Helvetica \
+        {int(app.width/25)} bold", fill = "#ffcd01")
+
+def drawReplay(app, canvas):
+    x = 5* app.width // 7
+    y = 3*app.height//4
+    canvas.create_text(x, y, text = "REPLAY", font = f"Helvetica \
+        {int(app.width/25)} bold", fill = "#ffcd01")
 
 
 #####################
@@ -384,15 +454,6 @@ def cellBounds(app, row, col): # modified from course notes
 def drawCell(app, canvas, row, col, color): 
     x1,x2,y1,y2 = cellBounds(app, row, col)
     canvas.create_rectangle(x1, y1, x2, y2, fill = color, width = 0)
-
-# def drawCorrectWall(app, canvas, row, col, color):
-#     if surroundingCells(app, [row,col]) == 4: 
-#         canvas.create_rectangle()
-#     x1 = app.sideMargin + col * app.cellSize
-#     x2 = x1 + app.cellSize
-#     y1 = app.topMargin + row * app.cellSize
-#     y2 = y1 + app.cellSize
-#     canvas.create_rectangle(x1, y1, x2, y2, fill = "black", width = 0)
 
 def makeMaze(app, numRemoved):
     maze = app.maze # initial maze
@@ -452,8 +513,8 @@ def makeChamber(app):
     app.maze[-3][-1] = "path"
 
 def makeEntrance(app):
-    print(f'app.mcStartY: {app.mcStartY}')
-    print(f'ROWCOL: {getRowCol(app, 0, app.mcStartY)}')
+    #print(f'app.mcStartY: {app.mcStartY}')
+    #print(f'ROWCOL: {getRowCol(app, 0, app.mcStartY)}')
     entranceRow = getRowCol(app, 0, app.mcStartY)[0]
     app.maze[entranceRow][0] = "path"
 
@@ -530,8 +591,8 @@ def moveIsLegal(app, dx, dy): # checks if a move is legal, and checks if it ends
     newX, newY = app.mc.x + dx, app.mc.y + dy
     row, col = getRowCol(app, newX, newY)
     # entrance channel is legal
-    print(f'row: {row}, col :{col}')
-    print(f'newX: {newX}, newY: {newY}')
+    #print(f'row: {row}, col :{col}')
+    #print(f'newX: {newX}, newY: {newY}')
     if newX >= 10 and newX <= app.sideMargin + app.cellSize * 2 and \
         newY <= app.mcStartY + app.cellSize and newY >= app.mcStartY:
         return True
@@ -540,7 +601,7 @@ def moveIsLegal(app, dx, dy): # checks if a move is legal, and checks if it ends
         newY > app.height - app.topMargin - 3 * app.cellSize and \
         newY < app.height - app.topMargin - 2 * app.cellSize:
             if newX >= app.sideMargin + app.cols * app.cellSize + app.sideMargin/3:
-                app.gameMode = "won"
+                app.mode = "won"
                 print("you win!")
             return True
     if row < 0 or col < 0:
@@ -568,7 +629,6 @@ def drawGround(app, canvas):
     for row in range(0,5):
         for col in range(0,4):
                 canvas.create_image(row*app.width//4, col*app.height//4, image=app.ground)
-
 
 def drawMaze(app, canvas):
     drawGround(app, canvas)
