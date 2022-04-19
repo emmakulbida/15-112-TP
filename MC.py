@@ -88,37 +88,27 @@ def appStarted(app):
     app.timerDelay = 20 # speed
 '''
 
-def appStarted(app):
-    mainSprite = app.loadImage("chibi-layered.png")
-    mainSprite = app.scaleImage(mainSprite, 4) # SCALED
-    app.mc = MC(app.height//2, app.width//2, mainSprite)
+# def appStarted(app):
+#     mainSprite = app.loadImage("chibi-layered.png")
+#     mainSprite = app.scaleImage(mainSprite, 4) # SCALED
+#     app.mc = MC(app.height//2, app.width//2, mainSprite)
 
-def moveCharacter(app, dX, dY):
-    app.mc.x += dX
-    app.mc.y += dY
+# def moveCharacter(app, dX, dY):
+#     app.mc.x += dX
+#     app.mc.y += dY
 
-def keyPressed(app,event):
-    magnitude = 10
-    app.mc.spriteCounter = (1 + app.mc.spriteCounter) % 3
-    if event.key == "Up":
-        app.mc.direction = "u2"
-        moveCharacter(app, 0,-magnitude)
-    if event.key == "Down":
-        app.mc.direction = "d0"
-        moveCharacter(app, 0,magnitude)
-    if event.key == "Left":
-        app.mc.direction = "l1"
-        moveCharacter(app, -magnitude,0)
-    if event.key == "Right":
-        app.mc.direction = "r3"
-        moveCharacter(app, magnitude,0)
-
-
-# def timerFired(app):
+# def keyPressed(app,event):
+#     magnitude = 10
 #     app.mc.spriteCounter = (1 + app.mc.spriteCounter) % 3
-
-# def redrawAll(app, canvas):
-#     main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
-#     canvas.create_image(app.mc.mainX, app.mc.mainY, image=ImageTk.PhotoImage(main))
-
-# runApp(width=400, height=400)
+#     if event.key == "Up":
+#         app.mc.direction = "u2"
+#         moveCharacter(app, 0,-magnitude)
+#     if event.key == "Down":
+#         app.mc.direction = "d0"
+#         moveCharacter(app, 0,magnitude)
+#     if event.key == "Left":
+#         app.mc.direction = "l1"
+#         moveCharacter(app, -magnitude,0)
+#     if event.key == "Right":
+#         app.mc.direction = "r3"
+#         moveCharacter(app, magnitude,0)
