@@ -4,9 +4,6 @@ from PIL import Image
 import MC
 import SLIME
 
-# width = 1000
-# height = 600
-
 def appStarted(app):
     app.mode = "start" 
     app.sideMargin = None
@@ -14,24 +11,23 @@ def appStarted(app):
     app.rows = None
     app.cols = None
     app.cellSize = 28
-    app.mcChoice = None # input from user
+    app.mcChoice = None 
     app.levelChoice = None
     app.mainSprite = app.loadImage("chibi-layered.png")
     app.mainSpriteStart = app.scaleImage(app.mainSprite, app.width/75)
     app.mcStartScreen0 = MC.MC(0, 0, app.mainSpriteStart, 0)
     app.mcStartScreen1 = MC.MC(0, 0, app.mainSpriteStart, 1)
     app.mcStartScreen2 = MC.MC(0, 0, app.mainSpriteStart, 2)
-    app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 10) # scale MC based on window size
-    app.maze = None # [["?"] * app.cols for i in range(app.rows)]
+    # scale MC based on window size
+    app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 10) 
+    app.maze = None 
     app.mazeWalls = []
     app.mcStartX = 0
     app.mcStartY = 0
-    app.mc = None # MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    app.mc = None 
     app.friend = None
-    #app.mcStartScreen = MC.MC(0, 0, app.mainSpriteStart, app.mcChoice)
     app.timerDelay = 20
     ground = app.loadImage("ground.jpeg")
-    #ground = app.PhotoImage("ground1.jpeg")
     ground = app.scaleImage(ground, 1.2)
     app.ground = ImageTk.PhotoImage(ground)
     torch = app.loadImage("torch.png")
@@ -39,43 +35,29 @@ def appStarted(app):
     app.mcTorch = app.loadImage("torch.png")
     app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
     app.gameOverText = app.loadImage("gameover.png")
-    #app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
     app.youWonText = app.scaleImage(app.loadImage("youwin1.png"),0.7)
     app.friendX = None
     app.friendY = None
     app.friendChoice = None
     app.foundFriend = False
-    # app.ground.place
-
     title = app.loadImage("title1.png")
     app.title = app.scaleImage(title, 6/11)
-
     app.lightCoordinates = set()
     app.slimeSprite = app.loadImage("redSlime.png")
-
     app.slimes = []
     app.slimeCoordinates = []
-
     app.runningTimer = 0
-
     app.torchOn = True
     app.randomTargets = [] # in row col
     app.randomTargetCoordinates = []
-
     app.keyFound = False
     app.key = app.loadImage("key.png")
     app.keyPosition = None
-
     app.lives = 3
     app.heart = app.loadImage("heart.png")
-    
     app.collidedTimer = 0
-    
     app.doorUnlocked = False
-
-
-#### NOT WORKING??????
-    #app.helpScreen = app.loadImage("instructions.png")
+    app.helpScreen = app.loadImage("instructions.png")
 
 
 #####################
@@ -87,7 +69,7 @@ def help_mousePressed(app, event):
         app.mode = "start"
 
 def help_redrawAll(app, canvas):
-    #canvas.create_image(app.width//2, app.height//2, image = ImageTk.PhotoImage(app.helpScreen))
+    canvas.create_image(app.width//2, app.height//2, image = ImageTk.PhotoImage(app.helpScreen))
     pass
 
 
@@ -130,6 +112,10 @@ def start_mousePressed(app, event):
     if event.x > levelx0 and event.x < levelx1 and event.y > 6*app.height/18 \
         and event.y < 8*app.height/18:
         app.levelChoice = "hard"
+    
+    # click on help button
+    if event.x > app.width - app.cellSize*4 and event.y > app.height - app.cellSize*4:
+        app.mode = "help"
 
 def reset(app):
     app.mode = "start" # "start"
@@ -151,23 +137,18 @@ def reset(app):
     app.friendChoice = None
     app.foundFriend = False
     app.friend = None
-
     ground = app.loadImage("ground.jpeg")
     ground = app.scaleImage(ground, 1.2)
     app.ground = ImageTk.PhotoImage(ground)
-
     torch = app.loadImage("torch.png")
     app.torch = app.scaleImage(torch, app.cellSize/50)
     app.mcTorch = app.loadImage("torch.png")
     app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
-
     app.lightCoordinates = set()
     app.slimes = []
     app.slimeCoordinates = []
     app.slimeSprite = app.loadImage("redSlime.png")
-
     app.runningTimer = 0
-
     app.torchOn = True
     app.randomTargets = [] # in row col
     app.randomTargetCoordinates = []
@@ -248,7 +229,6 @@ def pickCharacterAndLevel(app):
         app.mcStartX, app.mcStartY = determineStartPosition(app)
         makeEntrance(app)
         app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 26)
-        print(f'mcChoice: {app.mcChoice}')
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
         app.mcTorch = app.scaleImage(app.mcTorch, app.cellSize/300)
         app.slimeSprite = app.scaleImage(app.slimeSprite, app.cellSize / 18)
@@ -321,12 +301,7 @@ def start_redrawAll(app, canvas):
         drawCharacterChoice(app, canvas, app.mcChoice)
     if app.levelChoice != None: 
         drawLevelChoice(app, canvas)
-    # if app.levelChoice != None: 
-    #     drawLevelChoice(app, canvas, app.levelChoice)
     drawCharacters(app, canvas)
-    # torchBounds = (5 * app.width / 6, 7 * app.height / 10)
-    # canvas.create_rectangle(torchBounds[0] - app.width/20, torchBounds[1] - app.height/5.5, \
-    #     torchBounds[0] + app.width/20, torchBounds[1] + app.height/5.5, fill = "purple")
     drawLevels(app, canvas)
     drawTorch(app, canvas)
     drawTitle(app, canvas)
@@ -336,7 +311,8 @@ def drawTitle(app, canvas):
     canvas.create_image((app.width//10 + app.width//11 * 2.5 * 1) + app.width//16,\
         3*app.height//12, image = ImageTk.PhotoImage(app.title))
     canvas.create_text((app.width//10 + app.width//11 * 2.5 * 1) + app.width//16,\
-        5*app.height//12 - 10, text = "select character and difficulty. click torch to start.", font = "Helvetica 22", fill = "#999999")
+        5*app.height//12 - 10, text = "select character and difficulty. click torch to start.", \
+        font = "Helvetica 22", fill = "#999999")
 
 def drawTorch(app, canvas):
     canvas.create_image(5 * app.width / 6, 7 * app.height / 10, image = ImageTk.PhotoImage(app.torch))
@@ -372,9 +348,6 @@ def drawHelp(app, canvas):
 # gameplay mode
 #####################
 
-def gameplay_mousePressed(app, event):
-    pass
-
 def gameplay_keyPressed(app, event):
     updateLightCoordinates(app)
     if event.key == "Space":
@@ -402,86 +375,6 @@ def gameplay_keyPressed(app, event):
         app.mc.direction = "r3"
         if moveIsLegal(app, magnitude, 0):
             moveCharacter(app, magnitude,0)
-    # if event.key == "a":
-    #     slimeMovements(app)
-
-def getRandomTarget(app):
-    while True:  
-        row = random.randint(2, app.rows-1)
-        col = random.randint(2, app.cols-1)
-        if app.maze[row][col] == "path" and [row,col] not in app.randomTargets\
-            and not (row > app.rows-6 and col > app.cols - 7)\
-            and row != app.mc.y and col!= app.mc.x: 
-            return [row, col]
-
-def getRandomTargets(app):
-    # resets list
-    app.randomTargets = []
-    app.randomTargetCoordinates = []
-    for i in range(len(app.slimes)):
-        row,col = getRandomTarget(app)
-        app.randomTargets.append([row,col])
-        x1,x2,y1,y2 = cellBounds(app, row, col)
-        app.randomTargetCoordinates.append(((x1+x2)//2, (y1+y2)//2))
-
-def gameplay_redrawAll(app, canvas):
-    drawMaze(app, canvas)
-    main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
-    if app.foundFriend == False: 
-        friend = app.friend.mainSprite["d0"][1]
-    else: 
-        friend = app.friend.mainSprite[app.mc.direction][app.mc.spriteCounter]
-
-    mcRow, mcCol = getRowCol(app, app.mc.x, app.mc.y)
-    if app.keyFound == False:
-        canvas.create_image(app.keyPosition[0], app.keyPosition[1], image = ImageTk.PhotoImage(app.key))
-
-    if app.torchOn or ((mcRow, mcCol) in app.lightCoordinates):
-        canvas.create_image(app.mc.x, app.mc.y - 3*app.cellSize//5, image=ImageTk.PhotoImage(main))
-
-    canvas.create_image(app.friend.x, app.friend.y - 3*app.cellSize//5, image=ImageTk.PhotoImage(friend))
-    
-    # drawing the torch
-    if app.torchOn: 
-        drawMCTorch(app, canvas)
-    
-    # drawing the slimes
-    for slime in app.slimes: 
-        slimeImage = slime.slimeSprite["u2"][slime.spriteCounter]
-        canvas.create_image(slime.x, slime.y, image = ImageTk.PhotoImage(slimeImage))
-
-    # draw key inventory and health
-    if not(app.mc.x > app.width - app.sideMargin//2 - 10* app.cellSize and app.mc.y < app.topMargin + 3* app.cellSize):
-        canvas.create_rectangle(app.width - app.sideMargin//2 - 8* app.cellSize, app.topMargin, \
-            app.width - app.sideMargin//2, app.topMargin + 2* app.cellSize, fill = "#222222", width = 0)
-
-    if app.keyFound == True: 
-        canvas.create_image(app.width - app.sideMargin //2 - (app.cellSize), app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.inventoryKey))
-
-
-####
-    if app.lives >= 1: 
-        canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 3), app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
-        if app.lives >= 2: 
-            canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 5), app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
-            if app.lives == 3: 
-                canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 7), app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
-
-    if app.doorUnlocked == False:
-        canvas.create_rectangle(app.sideMargin + (app.cellSize * (app.cols-1)), app.height - app.topMargin - app.cellSize * 3, \
-            app.sideMargin + app.cellSize * (app.cols-1) + app.cellSize/4, app.height - app.topMargin- app.cellSize * 2, fill = "#654321", width = 0)
-    elif app.doorUnlocked == True: 
-        canvas.create_rectangle(app.sideMargin + (app.cellSize * (app.cols-1)) - app.cellSize/4, app.height - app.topMargin - app.cellSize * 4, \
-            app.sideMargin + app.cellSize * (app.cols-1), app.height - app.topMargin - app.cellSize * 3, fill = "#654321", width = 0)
-
-
-def drawMCTorch(app, canvas): 
-    if app.mc.direction == "d0":
-        canvas.create_image(app.mc.x+(app.cellSize//2), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
-    if app.mc.direction == "l1":
-        canvas.create_image(app.mc.x+(app.cellSize//4), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
-    if app.mc.direction == "r3":
-        canvas.create_image(app.mc.x+(app.cellSize//4), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
 
 def gameplay_timerFired(app):
     updateLightCoordinates(app)
@@ -506,9 +399,88 @@ def gameplay_timerFired(app):
     if app.runningTimer % 5 == 0:
         slimeMovements(app)
 
+def gameplay_redrawAll(app, canvas):
+    drawMaze(app, canvas)
+
+    # drawing key
+    if app.keyFound == False:
+        canvas.create_image(app.keyPosition[0], app.keyPosition[1], image = ImageTk.PhotoImage(app.key))
+
+    # drawing main character
+    main = app.mc.mainSprite[app.mc.direction][app.mc.spriteCounter]
+    mcRow, mcCol = getRowCol(app, app.mc.x, app.mc.y)
+    if app.torchOn or ((mcRow, mcCol) in app.lightCoordinates):
+        canvas.create_image(app.mc.x, app.mc.y - 3*app.cellSize//5, image=ImageTk.PhotoImage(main))
+
+    # drawing friend
+    if app.foundFriend == False: 
+        friend = app.friend.mainSprite["d0"][1]
+    else: 
+        friend = app.friend.mainSprite[app.mc.direction][app.mc.spriteCounter]
+    canvas.create_image(app.friend.x, app.friend.y - 3*app.cellSize//5, image=ImageTk.PhotoImage(friend))
+    
+    # drawing the torch
+    if app.torchOn: 
+        drawMCTorch(app, canvas)
+    
+    # drawing the slimes
+    for slime in app.slimes: 
+        slimeImage = slime.slimeSprite["u2"][slime.spriteCounter]
+        canvas.create_image(slime.x, slime.y, image = ImageTk.PhotoImage(slimeImage))
+
+    # draw key inventory and health
+    if not(app.mc.x > app.width - app.sideMargin//2 - 10* app.cellSize and app.mc.y < app.topMargin + 3* app.cellSize):
+        canvas.create_rectangle(app.width - app.sideMargin//2 - 8* app.cellSize, \
+            app.topMargin, app.width - app.sideMargin//2, app.topMargin + 2* app.cellSize, \
+            fill = "#222222", width = 0)
+
+    if app.keyFound == True: 
+        canvas.create_image(app.width - app.sideMargin //2 - (app.cellSize), \
+            app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.inventoryKey))
+
+    if app.lives >= 1: 
+        canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 3), \
+            app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
+        if app.lives >= 2: 
+            canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 5), \
+                app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
+            if app.lives == 3: 
+                canvas.create_image(app.width - app.sideMargin // 2 - (app.cellSize * 7), \
+                    app.topMargin + app.cellSize, image = ImageTk.PhotoImage(app.heart))
+
+    # drawing door
+    if app.doorUnlocked == False:
+        canvas.create_rectangle(app.sideMargin + (app.cellSize * (app.cols-1)), \
+            app.height - app.topMargin - app.cellSize * 3, app.sideMargin + app.cellSize * (app.cols-1) + app.cellSize/4,\
+            app.height - app.topMargin- app.cellSize * 2, fill = "#654321", width = 0)
+    elif app.doorUnlocked == True: 
+        canvas.create_rectangle(app.sideMargin + (app.cellSize * (app.cols-1)) - app.cellSize/4, \
+            app.height - app.topMargin - app.cellSize * 4, app.sideMargin + app.cellSize * (app.cols-1), \
+            app.height - app.topMargin - app.cellSize * 3, fill = "#654321", width = 0)
+
+def getRandomTarget(app):
+    while True:  
+        row = random.randint(2, app.rows-1)
+        col = random.randint(2, app.cols-1)
+        if app.maze[row][col] == "path" and [row,col] not in app.randomTargets\
+            and not (row > app.rows-6 and col > app.cols - 7)\
+            and row != app.mc.y and col!= app.mc.x: 
+            return [row, col]
+
+def getRandomTargets(app):
+    # resets list
+    app.randomTargets = []
+    app.randomTargetCoordinates = []
+    for i in range(len(app.slimes)):
+        row,col = getRandomTarget(app)
+        app.randomTargets.append([row,col])
+        x1,x2,y1,y2 = cellBounds(app, row, col)
+        app.randomTargetCoordinates.append(((x1+x2)//2, (y1+y2)//2))
+
 def checkDoorUnlocked(app):
     if app.keyFound and app.mc.x > app.sideMargin + (app.cellSize * (app.cols-2)) \
-        and app.mc.y > app.height - app.topMargin - app.cellSize * 4 and app.mc.y < app.height - app.topMargin - app.cellSize:
+        and app.mc.y > app.height - app.topMargin - app.cellSize * 4 and \
+        app.mc.y < app.height - app.topMargin - app.cellSize:
         app.doorUnlocked = True
         app.friendFound = True
 
@@ -523,8 +495,8 @@ def checkSlimeCollision(app):
     for slimeX, slimeY in slimeXY: 
         diffX = app.mc.x - slimeX
         diffY = app.mc.y - slimeY
-        if ((diffX < 3* app.cellSize/2 and diffX > -3*app.cellSize/2) and (diffY > - 3*app.cellSize/2 and diffY < 3*app.cellSize/2)):
-            print("collided!!")
+        if ((diffX < 3* app.cellSize/2 and diffX > -3*app.cellSize/2) and \
+            (diffY > - 3*app.cellSize/2 and diffY < 3*app.cellSize/2)):
             app.lives -= 1
             
         if app.lives == 0: 
@@ -536,12 +508,11 @@ def slimeMovements(app):
         if not app.torchOn:
             index = app.slimes.index(slime)
             target = app.randomTargetCoordinates[index]
-            print(f'target: {target}')
             targetRow, targetCol = getRowCol(app, target[0], target[1])
             changeSlimePosition(app, slime, slimeX, slimeY, targetRow, targetCol)
 
-        # target is the main character
         if app.torchOn: 
+            # target is the main character
             if app.slimes.index(slime) % 2 == 0:
                 target = [app.mc.x, app.mc.y]
             # target is 5 steps ahead of the main character
@@ -556,13 +527,11 @@ def slimeMovements(app):
                     target = [app.mc.x-5*app.cellSize, app.mc.y] 
             # in row col format
             targetRow, targetCol = getRowCol(app, target[0], target[1])
-            # in x, y
+            # in x, y format
             changeSlimePosition(app, slime, slimeX, slimeY, targetRow, targetCol)
 
 def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
     currDirection = slime.direction
-    #print(f'trow: {trow}, tcol: {tcol}')
-    #print(f'currentDirection: {currDirection}')
     if currDirection == "d0":
         allowed = ((0,1),(1,0),(-1,0))
         notAllowed = (0,-1)
@@ -581,9 +550,7 @@ def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
 
     #building a dictionary of each move mapped to distance from target
     for dir in allowed: 
-        #print(f'direction: {dir}')
         if slimeMoveIsLegal(app, row, col, dir[0], dir[1]):
-            #print(f'this {dir} is legal, row: {row}, col: {col}, new row: {row + dir[0]}, new col: {col+dir[1]}')
             distances[dir] = distance(trow, tcol, row + dir[0], col + dir[1])
     
     best = (app.rows + app.cols) * app.cellSize # bigger than max possible distance
@@ -592,8 +559,6 @@ def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
         if distances[dir] < best: 
             best = distances[dir]
             bestDir = dir
-    
-    #print(f'distances: {distances}')
 
     # turn around if no other move is legal
     if best == (app.rows + app.cols) * app.cellSize:
@@ -607,10 +572,6 @@ def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
     if bestDir == (0,-1): slime.direction = "u2" # "r1"
     if bestDir == (-1,0): slime.direction = "l3" # "u2"
 
-
-
-    #print(f'bestDirection: {slime.direction}')
-
     # updates slime position
     slime.x = (x1+x2)//2
     slime.y = (y1+y2)//2
@@ -618,19 +579,25 @@ def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
 def distance(x1,y1,x2,y2):
     return math.sqrt((x1-x2)**2 + (y1-y2)**2)
 
+def drawMCTorch(app, canvas): 
+    if app.mc.direction == "d0":
+        canvas.create_image(app.mc.x+(app.cellSize//2), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
+    if app.mc.direction == "l1":
+        canvas.create_image(app.mc.x+(app.cellSize//4), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
+    if app.mc.direction == "r3":
+        canvas.create_image(app.mc.x+(app.cellSize//4), app.mc.y-(app.cellSize//5), image = ImageTk.PhotoImage(app.mcTorch))
+
 #####################
 # won game mode
 #####################
 
 def won_mousePressed(app, event):
-    #print(f'clicked at: {event.x,event.y}')
     x = 17 * app.width// 26
     dWidth = app.width//8
     dHeight = app.height//10
     y = 3 * app.height//4
     if event.x > x - dWidth and event.x < x + dWidth and \
         event.y > y - dHeight and event.y < y + dHeight: 
-        print("startMode")
         app.mode = "start"
         reset(app)
 
@@ -683,8 +650,6 @@ def gameOver_mousePressed(app, event):
         app.mode = "gameplay"
         retry(app)
 
-
-
 def gameOver_redrawAll(app, canvas):
     drawGround(app, canvas)
     messageBoxHeight = app.height // 5.8
@@ -701,7 +666,6 @@ def gameOver_redrawAll(app, canvas):
     # draw torch
     endTorch = app.scaleImage(app.torchStartScreen, 0.3)
     canvas.create_image(app.width // 2, 4 * app.height//5 - 5, image=ImageTk.PhotoImage(endTorch))
-    
     drawBackToHome(app, canvas)
     drawReplay(app, canvas)
 
@@ -739,7 +703,6 @@ def determineSlimeStartPosition(app):
 def getCellSize(app):
     maxWidth = int((app.width - 30) / app.cols)
     maxHeight = int((app.height - 30) / app.rows)
-    #print(f'width: {app.width}, height: {app.height}, maxWidth: {maxWidth}, maxHeight: {maxHeight}')
     return min(maxWidth, maxHeight)
 
 def getMargin(app):
@@ -747,19 +710,24 @@ def getMargin(app):
     mazeHeight = app.cellSize * app.rows
     sideMargin = (app.width - mazeLength)/2
     topMargin = (app.height - mazeHeight)/2
-    #print(f'mazeLength = {mazeLength}, mazeHeight = {mazeHeight}, sizeMargin = {sideMargin}, topMargin = {topMargin}')
     return sideMargin, topMargin
 
-def cellBounds(app, row, col): # modified from course notes
+# modified from course notes
+def cellBounds(app, row, col): 
     x1 = app.sideMargin + col * app.cellSize
     x2 = x1 + app.cellSize
     y1 = app.topMargin + row * app.cellSize
     y2 = y1 + app.cellSize
     return (x1, x2, y1, y2)
 
-def drawCell(app, canvas, row, col, color): 
+# modified from course notes
+def drawCell(app, canvas, row, col, color):
     x1,x2,y1,y2 = cellBounds(app, row, col)
     canvas.create_rectangle(x1, y1, x2, y2, fill = color, width = 0)
+
+####################################
+# maze generation: prim's algorithm
+####################################
 
 def makeMaze(app, numRemoved):
     maze = app.maze # initial maze
@@ -772,7 +740,8 @@ def makeMaze(app, numRemoved):
         randWall = app.mazeWalls[randIndex]
         # checks left wall
         if randWall[1] != 0:
-            if app.maze[randWall[0]][randWall[1]-1] == "?" and maze[randWall[0]][randWall[1]+1] == "path":
+            if app.maze[randWall[0]][randWall[1]-1] == "?" and \
+                maze[randWall[0]][randWall[1]+1] == "path":
                 if surroundingCells(app, randWall) < 2:
                     app.maze[randWall[0]][randWall[1]] = "path"
                     addNewWalls(app, "left", randWall)
@@ -780,7 +749,8 @@ def makeMaze(app, numRemoved):
                 continue
         # checks right wall
         if randWall[1] != app.cols-1:
-            if app.maze[randWall[0]][randWall[1]+1] == "?" and maze[randWall[0]][randWall[1]-1] == "path":
+            if app.maze[randWall[0]][randWall[1]+1] == "?" and \
+                maze[randWall[0]][randWall[1]-1] == "path":
                 if surroundingCells(app, randWall) < 2:
                     app.maze[randWall[0]][randWall[1]] = "path"
                     addNewWalls(app, "right", randWall)
@@ -788,7 +758,8 @@ def makeMaze(app, numRemoved):
                 continue
         # checks up wall
         if randWall[0] != 0:
-            if app.maze[randWall[0]-1][randWall[1]] == "?" and maze[randWall[0]+1][randWall[1]] == "path":
+            if app.maze[randWall[0]-1][randWall[1]] == "?" and \
+                maze[randWall[0]+1][randWall[1]] == "path":
                 if surroundingCells(app, randWall) < 2:
                     app.maze[randWall[0]][randWall[1]] = "path"
                     addNewWalls(app, "up", randWall)
@@ -796,7 +767,8 @@ def makeMaze(app, numRemoved):
                 continue
         # checks down wall
         if randWall[0] != app.rows-1:
-            if app.maze[randWall[0]+1][randWall[1]] == "?" and maze[randWall[0]-1][randWall[1]] == "path":
+            if app.maze[randWall[0]+1][randWall[1]] == "?" and \
+                maze[randWall[0]-1][randWall[1]] == "path":
                 if surroundingCells(app, randWall) < 2:
                     app.maze[randWall[0]][randWall[1]] = "path"
                     addNewWalls(app, "down", randWall)
@@ -805,23 +777,20 @@ def makeMaze(app, numRemoved):
         removeWall(app, randWall[0], randWall[1])
     fillMaze(app)
     makeChamber(app)
-    # while pathfinding algorithm > __: removeWalls
     removeWalls(app, numRemoved)
 
 def makeChamber(app):
     for row in range(-2,-6, -1):
         for col in range(-2,-7, -1):
-            #print(app.maze[row][col])
             app.maze[row][col] = "path"
     app.maze[-3][-1] = "path"
 
 def makeEntrance(app):
-    #print(f'app.mcStartY: {app.mcStartY}')
-    #print(f'ROWCOL: {getRowCol(app, 0, app.mcStartY)}')
     entranceRow = getRowCol(app, 0, app.mcStartY)[0]
     app.maze[entranceRow][0] = "path"
 
-def removeWalls(app, numRemoved): # makes the maze have loops
+# makes the maze have loops 
+def removeWalls(app, numRemoved):
     count = 0
     while numRemoved > 0: 
         randomRow = random.randint(3,app.rows-3)
@@ -844,7 +813,6 @@ def removeWalls(app, numRemoved): # makes the maze have loops
     while numRemoved > 0: 
         randomRow = random.randint(2,app.rows-2)
         randomCol = random.randint(2,app.cols-2)
-        #print(f'randomRow: {randomRow}, randomCol : {randomCol}')
         if app.maze[randomRow][randomCol] == "wall" and \
             ((app.maze[randomRow + 1][randomCol] == "path" and \
             app.maze[randomRow - 1][randomCol] == "path") or (
@@ -892,7 +860,8 @@ def addNewWalls(app, direction, randWall):
             if app.maze[row-1][col] not in app.mazeWalls:
                 app.mazeWalls.append([row-1,col])
 
-def surroundingCells(app, randWall): # checks if the wall has 0 or 1 cells around it
+# checks if the wall has 0 or 1 cells around it
+def surroundingCells(app, randWall): 
     total = 0
     for direction in ((-1,0),(1,0),(0,1), (0,-1)):
         dRow = direction[0]
@@ -905,7 +874,6 @@ def addSurroundingWalls(app, startRow, startCol):
     for direction in ((-1,0),(1,0),(0,1), (0,-1)):
         dRow = direction[0]
         dCol = direction[1]
-        # print(f'[startRow + dRow, startCol + dCol]: {[startRow + dRow, startCol + dCol]}')
         app.mazeWalls.append([startRow + dRow, startCol + dCol])
         app.maze[startRow + dRow][startCol + dCol] = "wall"
 
@@ -913,7 +881,8 @@ def moveCharacter(app, dX, dY):
     app.mc.x += dX
     app.mc.y += dY
 
-def moveIsLegal(app, dx, dy): # checks if a move is legal, and checks if it ends the game
+# checks if a move is legal, and checks if it ends the game
+def moveIsLegal(app, dx, dy): 
     newX, newY = app.mc.x + dx, app.mc.y + dy
     row, col = getRowCol(app, newX, newY)
    
@@ -921,6 +890,7 @@ def moveIsLegal(app, dx, dy): # checks if a move is legal, and checks if it ends
     if newX >= 10 and newX <= app.sideMargin + app.cellSize * 2 and \
         newY <= app.mcStartY + app.cellSize and newY >= app.mcStartY:
         return True
+
     # exit channel is legal if door is unlocked: 
     if app.doorUnlocked == True:
         if newX >= app.sideMargin + app.cols * app.cellSize and\
@@ -929,7 +899,6 @@ def moveIsLegal(app, dx, dy): # checks if a move is legal, and checks if it ends
                 if newX >= app.sideMargin + app.cols * app.cellSize + app.sideMargin/3:
                     if app.foundFriend: 
                         app.mode = "won"
-                        print("you win!")
                 return True
     elif app.doorUnlocked == False: 
         if newX >= app.width - app.sideMargin - app.cellSize and\
@@ -952,7 +921,6 @@ def slimeMoveIsLegal(app, row, col, drow, dcol): # checks if a move is legal
     elif app.maze[newRow][newCol] == "path" \
             and not (row > app.rows-6 and col > app.cols - 7): 
             return True
-    #else: return False
 
 def updateLightCoordinates(app):
     app.lightCoordinates = set()
@@ -967,25 +935,18 @@ def updateLightCoordinates(app):
         slimeRow, slimeCol = getRowCol(app, slime[0], slime[1])
         slimeRowsCols.append([slimeRow, slimeCol])
 
-#######
-
+    # making the slimes glow
     for slimeRow, slimeCol in slimeRowsCols: 
-        #print(f'rows, cols: {slimeRow, slimeCol}')
         for row in range(app.rows):
             for col in range(app.cols):
                 if isInRadius(app, row, col, slimeRow, slimeCol, app.rows//10):
                     app.lightCoordinates.add((row, col))
-
-
-#######
-
 
     if app.torchOn:
         for row in range(app.rows):
             for col in range(app.cols):
                 if isInRadius(app, row, col, playerRowCol[0], playerRowCol[1], app.rows//6):
                     app.lightCoordinates.add((row,col))
-    #print(f'lightCoordinates: {app.lightCoordinates}')
 
 def getSlimeXY(app):
     XYList = []
@@ -1029,18 +990,14 @@ def drawMaze(app, canvas):
     drawGround(app, canvas)
     for row in range(app.rows):
         for col in range(app.cols):
-
-                # if app.maze[row][col] == "wall": # wall
-                #     drawCell(app, canvas, row, col, "#111111")
                 if (row,col) in app.lightCoordinates:
-                    if app.maze[row][col] == "wall": # wall
+                    if app.maze[row][col] == "wall": 
                         drawCell(app, canvas, row, col, "#111111")
+                # cell is black if it isn't in light coordinates
                 elif (row,col) not in app.lightCoordinates:
                     drawCell(app, canvas, row, col, "black")
                 elif app.maze[row][col] == "path": 
                     drawCell(app, canvas, row, col, "black")
-
-
     drawPassages(app, canvas)
 
 runApp(width=1000, height=600)
