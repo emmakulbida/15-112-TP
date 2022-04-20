@@ -9,8 +9,8 @@ import SLIME
 
 def appStarted(app):
     app.mode = "start" 
-    app.sideMargin = 80 #None
-    app.topMargin = 20 #None
+    app.sideMargin = None
+    app.topMargin = None
     app.rows = None
     app.cols = None
     app.cellSize = 28
@@ -47,12 +47,14 @@ def appStarted(app):
     app.foundFriend = False
     # app.ground.place
 
+    title = app.loadImage("title1.png")
+    app.title = app.scaleImage(title, 6/11)
+
     app.lightCoordinates = set()
     app.slimeSprite = app.loadImage("redSlime.png")
 
     app.slimes = []
     app.slimeCoordinates = []
-    app.targets = []
 
     app.runningTimer = 0
 
@@ -70,6 +72,23 @@ def appStarted(app):
     app.collidedTimer = 0
     
     app.doorUnlocked = False
+
+
+#### NOT WORKING??????
+    #app.helpScreen = app.loadImage("instructions.png")
+
+
+#####################
+# help mode
+#####################
+
+def help_mousePressed(app, event):
+    if event.x > 1*app.width/3 and event.x < 2*app.width/3 and event.y < 7*app.width/8:
+        app.mode = "start"
+
+def help_redrawAll(app, canvas):
+    #canvas.create_image(app.width//2, app.height//2, image = ImageTk.PhotoImage(app.helpScreen))
+    pass
 
 
 #####################
@@ -118,32 +137,76 @@ def reset(app):
     app.topMargin = None #None
     app.rows = None
     app.cols = None
-    app.cellSize = None #None
+    app.cellSize = 28 #None
     app.friendX = None
     app.friendY = None
     app.mcChoice = None
     app.levelChoice = None
-    app.friendX = None
-    app.friendY = None
-    app.friendChoice = 1 # None
+    app.maze = None
+    app.mazeWalls = []
+    app.mcStartX = 0
+    app.mcStartY = 0
+    app.mc = None
+    app.friend = None
+    app.friendChoice = None
     app.foundFriend = False
     app.friend = None
+
+    ground = app.loadImage("ground.jpeg")
+    ground = app.scaleImage(ground, 1.2)
+    app.ground = ImageTk.PhotoImage(ground)
+
+    torch = app.loadImage("torch.png")
+    app.torch = app.scaleImage(torch, app.cellSize/50)
+    app.mcTorch = app.loadImage("torch.png")
+    app.torchStartScreen = app.scaleImage(torch, app.cellSize/15)
+
     app.lightCoordinates = set()
     app.slimes = []
     app.slimeCoordinates = []
-    app.targets = []
+    app.slimeSprite = app.loadImage("redSlime.png")
 
     app.runningTimer = 0
 
     app.torchOn = True
     app.randomTargets = [] # in row col
     app.randomTargetCoordinates = []
-
+    app.key = app.loadImage("key.png")
     app.keyFound = False
     app.keyPosition = None
-
+    app.heart = app.loadImage("heart.png")
     app.lives = 3
     app.doorUnlocked = False
+    app.collidedTimer = 0
+
+def retry(app):
+    app.mcStartX, app.mcStartY = determineStartPosition(app)
+    app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
+    app.foundFriend = False
+    app.slimes = []
+    app.slimeCoordinates = []
+    app.slimeSprite = app.loadImage("redSlime.png")
+    app.slimeSprite = app.scaleImage(app.slimeSprite, app.cellSize/18)
+    app.runningTimer = 0
+    app.torchOn = True
+    app.randomTargets = [] # in row col
+    app.randomTargetCoordinates = []
+    app.key = app.loadImage("key.png")
+    app.key = app.scaleImage(app.key, app.cellSize / 50)
+    app.keyFound = False
+    app.heart = app.loadImage("heart.png")
+    if app.levelChoice == "easy":
+        app.heart = app.scaleImage(app.heart, app.cellSize//10)
+        placeSlimes(app, 2)
+    elif app.levelChoice == "medium":
+        app.heart = app.scaleImage(app.heart, app.cellSize//10)
+        placeSlimes(app, 5)
+    elif app.levelChoice == "hard":
+        app.heart = app.scaleImage(app.heart, app.cellSize//7)
+        placeSlimes(app, 7)
+    app.lives = 3
+    app.doorUnlocked = False
+    app.collidedTimer = 0
 
 def pickOtherCharacter(app):
     randCharacter = random.randint(0,2)
@@ -157,7 +220,6 @@ def pickOtherCharacter(app):
     app.friend = MC.MC(app.friendX, app.friendY, app.mainSprite, randCharacter)
 
 def pickCharacterAndLevel(app):
-    print(f'levelChoice: {app.levelChoice}, mcChoice: {app.mcChoice}')
     if app.levelChoice == "easy":
         app.rows = 20
         app.cols = 30
@@ -170,14 +232,12 @@ def pickCharacterAndLevel(app):
         app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 26)
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
         app.mcTorch = app.scaleImage(app.mcTorch, app.cellSize/300)
-###
         app.slimeSprite = app.scaleImage(app.slimeSprite, app.cellSize / 18)
-        placeSlimes(app, 4)
+        placeSlimes(app, 2)
         placeKey(app)
         app.key = app.scaleImage(app.key, app.cellSize / 50)
         app.inventoryKey = app.scaleImage(app.key, app.cellSize / 20)
         app.heart = app.scaleImage(app.heart, app.cellSize//10)
-###
     if app.levelChoice == "medium":
         app.rows = 25
         app.cols = 35
@@ -209,8 +269,8 @@ def pickCharacterAndLevel(app):
         app.mainSprite = app.scaleImage(app.mainSprite, app.cellSize / 26)
         app.mc = MC.MC(app.mcStartX, app.mcStartY, app.mainSprite, app.mcChoice)
         app.mcTorch = app.scaleImage(app.mcTorch, app.cellSize/300)
-        app.slimeSprite = app.scaleImage(app.slimeSprite, app.cellSize / 10)
-        placeSlimes(app, 6)
+        app.slimeSprite = app.scaleImage(app.slimeSprite, app.cellSize / 18)
+        placeSlimes(app, 7)
         placeKey(app)
         app.key = app.scaleImage(app.key, app.cellSize / 50)
         app.inventoryKey = app.scaleImage(app.key, app.cellSize / 10)
@@ -255,9 +315,6 @@ def placeKey(app):
             app.keyPosition = ((x1+x2)//2, (y1+y2)//2)
             return
 
-def start_keyPressed(app, event):
-    pass
-
 def start_redrawAll(app, canvas):
     drawGround(app, canvas)
     if app.mcChoice != None: 
@@ -272,6 +329,14 @@ def start_redrawAll(app, canvas):
     #     torchBounds[0] + app.width/20, torchBounds[1] + app.height/5.5, fill = "purple")
     drawLevels(app, canvas)
     drawTorch(app, canvas)
+    drawTitle(app, canvas)
+    drawHelp(app, canvas)
+
+def drawTitle(app, canvas):
+    canvas.create_image((app.width//10 + app.width//11 * 2.5 * 1) + app.width//16,\
+        3*app.height//12, image = ImageTk.PhotoImage(app.title))
+    canvas.create_text((app.width//10 + app.width//11 * 2.5 * 1) + app.width//16,\
+        5*app.height//12 - 10, text = "select character and difficulty. click torch to start.", font = "Helvetica 22", fill = "#999999")
 
 def drawTorch(app, canvas):
     canvas.create_image(5 * app.width / 6, 7 * app.height / 10, image = ImageTk.PhotoImage(app.torch))
@@ -297,9 +362,11 @@ def drawCharacters(app, canvas):
         startX, startY, endX, endY = startScreenCharactersBounds(app, i)
         midY = int((startY+endY)//2)
         midX = int((startX+endX)/2)
-        #print(f'character: {character}')
         canvas.create_image(midX, midY, image = ImageTk.PhotoImage(character.mainSprite["d0"][0]))
         i += 1
+
+def drawHelp(app, canvas):
+    canvas.create_text(19*app.width/20, 18*app.height/20, text = "?", font = "Helvetica 70 bold", fill = "#999999")
 
 #####################
 # gameplay mode
@@ -312,7 +379,6 @@ def gameplay_keyPressed(app, event):
     updateLightCoordinates(app)
     if event.key == "Space":
         getRandomTargets(app)
-        #print(f'printed: {app.randomTargetCoordinates}')
         app.torchOn = not app.torchOn
         # shifts the random target coordinates every time you switch the torch on/off
     magnitude = 10
@@ -491,7 +557,6 @@ def slimeMovements(app):
             # in row col format
             targetRow, targetCol = getRowCol(app, target[0], target[1])
             # in x, y
-            app.targets.append(target)
             changeSlimePosition(app, slime, slimeX, slimeY, targetRow, targetCol)
 
 def changeSlimePosition (app,slime, x, y, trow,tcol): # target row, target col
@@ -606,7 +671,19 @@ def drawWonBackToHome(app, canvas):
 # game over mode
 #####################
 def gameOver_mousePressed(app, event):
-    pass
+    # return home
+    if event.x > 1*app.width//7 and event.x < 3*app.width//7 and \
+        event.y > 11*app.height//16 and event.y < 13*app.height//16:
+        app.mode = "start"
+        reset(app)
+    
+    # retry level
+    if event.x > 4*app.width//7 and event.x < 6*app.width//7 and \
+        event.y > 11*app.height//16 and event.y < 13*app.height//16:
+        app.mode = "gameplay"
+        retry(app)
+
+
 
 def gameOver_redrawAll(app, canvas):
     drawGround(app, canvas)
