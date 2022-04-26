@@ -7,13 +7,11 @@ class MC:
         self.mainSprite = dict()
         self.mainWidth = mainSprite.size[0]
         self.mainHeight = mainSprite.size[1]
-        print(f'self.mainWidth: {self.mainWidth}, self.mainHeight: {self.mainHeight}')
         self.mainChoice = choice # which main character (0,1,2)
         self.x = startX
         self.y = startY
         for direction in (["d0", "l1", "u2"]): # down 0, right 1, up 2, left 3
             index = int(direction[-1])
-            print(f'self.mainChoice: {self.mainChoice}')
             y0 = (self.mainHeight/3) * self.mainChoice
             y1 = y0 + self.mainHeight/3
             directionSprites = []
@@ -24,7 +22,6 @@ class MC:
             for i in directionRange:
                 x0 = (self.mainWidth/9 * i)
                 x1 = x0 + self.mainWidth/9 
-                #print(f'x0,x1 = {x0,x1}')
                 sprite = mainSprite.crop((x0,y0,x1,y1))
                 directionSprites.append(sprite)
             self.mainSprite[direction] = directionSprites
