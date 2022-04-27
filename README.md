@@ -1,5 +1,8 @@
 # 15-112-TP
-15-112 TP
+CARNEGIE MELLON UNIVERSITY 15-112 TERM PROJECT
+
+video demo: https://youtu.be/mkXMLRzSZTI
+
 
 Escape the cave
 
